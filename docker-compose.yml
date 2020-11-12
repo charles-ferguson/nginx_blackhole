@@ -1,0 +1,22 @@
+---
+version: "3.7"
+
+services:
+  nginx:
+    build:
+      context: "containers/nginx"
+    environment:
+      APP_HOST: app
+      APP_PORT: 4567
+      APP_NAME: test_app
+    ports:
+    - target: 80
+      published: 3000
+      protocol: tcp
+
+  app:
+    build: "containers/webapp"
+    ports:
+    - target: 4567
+      published: 4567
+      protocol: tcp
