@@ -3,7 +3,12 @@ server {
   server_name ${APP_NAME};
   location /lua {
     content_by_lua_block {
-        ngx.say("Hi from within a lua block")
+        local file = io.open("/killswitches/uri/lua", "r")
+        if file then
+          ngx.say("Oh no, this has been disabled")
+        else
+          ngx.say("Hi, from within this lua block.")
+        end
     }
   }
   location / {
