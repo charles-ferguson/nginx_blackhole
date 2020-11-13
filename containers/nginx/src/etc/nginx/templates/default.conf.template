@@ -2,9 +2,27 @@ server {
   listen 80;
   server_name ${APP_NAME};
 
+  location /blackhole_uri.html {
+    internal;
+    root /var/www/;
+  }
+
+  location /blackhole_ip.html {
+    internal;
+    root /var/www/;
+  }
+
+  location /errorPages {
+    root /var/www/;
+  }
+
   location / {
     rewrite_by_lua_block {
-      local uri_killswitch = io.open("${BLACKHOLE_PATH}/uri/" .. ngx.var.uri, "r")
+      local uri = string.gsub(ngx.var.uri, "/", "_")
+      uri = string.gsub(uri, "^_", "/")
+
+      local errlog = require "ngx.errlog"
+      local uri_killswitch = io.open("${BLACKHOLE_PATH}/uri/" .. uri, "r")
 
       if uri_killswitch then
         ngx.exit(410)
@@ -12,10 +30,12 @@ server {
 
       local ip_killswitch = io.open("${BLACKHOLE_PATH}/uri/" .. ngx.var.remote_addr, "r")
       if ip_killswitch then
-        ngx.exit(403)
+        ngx.exit(475)
       end
     }
 
+    error_page 410 /blackhole_uri.html;
+    error_page 475 /blackhole_ip.html;
     proxy_pass http://${APP_HOST}:${APP_PORT};
   }
 }

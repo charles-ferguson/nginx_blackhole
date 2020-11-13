@@ -37,7 +37,8 @@ class Blackhole
   end
 
   def path
-    File.join(TYPE_TO_BLACKHOLE_PATH_MAP[type], identifier)
+    file_name = identifier.gsub('/', '_')
+    File.join(TYPE_TO_BLACKHOLE_PATH_MAP[type], file_name)
   end
 
   def create
