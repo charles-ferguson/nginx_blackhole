@@ -9,12 +9,13 @@ services:
       APP_HOST: app
       APP_PORT: 4567
       APP_NAME: test_app
+      BLACKHOLE_PATH: "/blackholes"
     ports:
     - target: 80
       published: 3000
       protocol: tcp
     volumes:
-      - "killswitches:/killswitches"
+      - "blackholes:/blackholes"
 
   app:
     build: "containers/webapp"
@@ -22,7 +23,9 @@ services:
     - target: 4567
       published: 4567
       protocol: tcp
+    tty: true
+    stdin_open: true
     volumes:
-      - "killswitches:/home/app-runner/app/killswitches"
+      - "blackholes:/home/app-runner/app/blackholes"
 volumes:
-  killswitches:
+  blackholes:

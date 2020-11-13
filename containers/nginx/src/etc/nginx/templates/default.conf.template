@@ -1,17 +1,21 @@
 server {
   listen 80;
   server_name ${APP_NAME};
-  location /lua {
-    content_by_lua_block {
-        local file = io.open("/killswitches/uri/lua", "r")
-        if file then
-          ngx.say("Oh no, this has been disabled")
-        else
-          ngx.say("Hi, from within this lua block.")
-        end
-    }
-  }
+
   location / {
+    rewrite_by_lua_block {
+      local uri_killswitch = io.open("${BLACKHOLE_PATH}/uri/" .. ngx.var.uri, "r")
+
+      if uri_killswitch then
+        ngx.exit(410)
+      end
+
+      local ip_killswitch = io.open("${BLACKHOLE_PATH}/uri/" .. ngx.var.remote_addr, "r")
+      if ip_killswitch then
+        ngx.exit(403)
+      end
+    }
+
     proxy_pass http://${APP_HOST}:${APP_PORT};
   }
 }
