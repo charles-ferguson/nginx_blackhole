@@ -1,6 +1,11 @@
 server {
   listen 80;
   server_name ${APP_NAME};
+  location /lua {
+    content_by_lua_block {
+        ngx.say("Hi from within a lua block")
+    }
+  }
   location / {
     proxy_pass http://${APP_HOST}:${APP_PORT};
   }
